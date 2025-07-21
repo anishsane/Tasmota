@@ -245,7 +245,7 @@ public:
 
 public:
   // Low-level 
-  CEC_Device(int gpio, CEC_DEVICE_TYPE type, bool promiscuous = false, bool monitor_mode = false);
+  CEC_Device(int gpio, int gpio_rx, CEC_DEVICE_TYPE type, bool promiscuous = false, bool monitor_mode = false);
   void run();   // this must be called at each millisecond tick
   bool IRAM_ATTR isTransmitting() const { return _transmit_buffer_bytes != 0; }
   void checkMessages();      // check regularly for mailbox
@@ -413,6 +413,7 @@ protected:
 protected:
   // Tasmota specific
   int32_t _gpio;
+  int32_t _gpio_rx;
   CEC_DEVICE_TYPE _type;
   CEC_RingBuffer _ring_buffer;
   uint32_t _xmit_wait_ms;         // number of milliseconds to wait before starting transmission
@@ -422,7 +423,7 @@ protected:
  * Class implementation
 \*********************************************************************************************/
 
-CEC_Device::CEC_Device(int gpio, CEC_DEVICE_TYPE type, bool promiscuous, bool monitor_mode) :
+CEC_Device::CEC_Device(int gpio, int gpio_rx, CEC_DEVICE_TYPE type, bool promiscuous, bool monitor_mode) :
   _monitor_mode(true),
   _promiscuous(false),
   _logical_address(-1),
@@ -458,6 +459,7 @@ CEC_Device::CEC_Device(int gpio, CEC_DEVICE_TYPE type, bool promiscuous, bool mo
   _physical_address = discoverPhysicalAddress();
   _logical_address = -1;
   _gpio = gpio;
+  _gpio_rx = gpio_rx > 0 ? gpio_rx : gpio;
   _type = type;
 }
 
@@ -716,7 +718,7 @@ void CEC_Device::runTransmit() {
 /// It is mainly driven by ISR,
 /// except when sending ACK, it blocks for 2ms
 ///
-void IRAM_ATTR CEC_Device::runReceiveISR() {
+void CEC_Device::runReceiveISR() {
   if (isTransmitting()) { return; }         // ignore any interrupt caused or during active transmission
 
   // update timing information for new iteration
@@ -1051,9 +1053,10 @@ void CEC_Device::checkMessages() {
  * Interrupt management
 \*********************************************************************************************/
 
+void IRAM_ATTR CEC_Run(void *self);
 void CEC_Device::enableISR(void) {
-  if (_gpio >= 0) {
-    attachInterruptArg(_gpio, CEC_Run, this, CHANGE);
+  if (_gpio_rx >= 0) {
+    attachInterruptArg(_gpio_rx, CEC_Run, this, CHANGE);
   }
 }
 
@@ -1080,13 +1083,13 @@ uint16_t CEC_Device::discoverPhysicalAddress() {
   return addr;
 }
 
-bool IRAM_ATTR CEC_Device::lineState()
+bool CEC_Device::lineState()
 {
 	int state = digitalRead(_gpio);
 	return state != LOW;
 }
 
-bool IRAM_ATTR CEC_Device::setLineState(bool state, bool check)
+bool CEC_Device::setLineState(bool state, bool check)
 {
   // Using the following states, we can connect directly the GPIO to CEC pin without any transistor:
   //   - for high, configure as input + pullup, there is also a pull-up in the TV

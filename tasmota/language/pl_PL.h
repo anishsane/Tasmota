@@ -716,6 +716,7 @@
 #define D_SENSOR_I2S_DOUT      "I2S DOUT"
 #define D_SENSOR_I2S_DAC       "I2S DAC"
 #define D_SENSOR_HDMI_CEC      "HDMI CEC"
+#define D_SENSOR_HDMI_CEC_RX   "HDMI CEC RX"
 #define D_SENSOR_WS2812        "WS2812"
 #define D_SENSOR_DFR562        "Odtwarzacz MP3"
 #define D_SENSOR_DFR562_BUSY   "MP3 zajęty"

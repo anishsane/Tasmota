@@ -212,6 +212,7 @@ enum UserSelectablePins {
   GPIO_GM861_TX, GPIO_GM861_RX,         // GM861 Serial interface
   GPIO_DINGTIAN_OE,                     // New version of Dingtian relay board where PL is not shared with OE
   GPIO_HDMI_CEC,                        // Support for HDMI CEC
+  GPIO_HDMI_CEC_RX,                     // Support for HDMI CEC use a separate RX pin
   GPIO_HC8_RXD,                         // HC8 Serial interface
   GPIO_I2S_DAC,                         // Audio DAC support for ESP32 and ESP32S2
   GPIO_MAGIC_SWITCH,                    // MagicSwitch as in Sonoff BasicR4
@@ -491,6 +492,7 @@ const char kSensorNames[] PROGMEM =
   D_SENSOR_GM861_TX "|" D_SENSOR_GM861_RX "|"
   D_GPIO_DINGTIAN_OE "|"
   D_SENSOR_HDMI_CEC "|"
+  D_SENSOR_HDMI_CEC_RX "|"
   D_SENSOR_HC8_RX "|"
   D_SENSOR_I2S_DAC "|"
   D_GPIO_MAGIC_SWITCH "|"
@@ -773,6 +775,7 @@ const uint16_t kGpioNiceList[] PROGMEM = {
 
 #ifdef USE_HDMI_CEC
   AGPIO(GPIO_HDMI_CEC),                          // HDMI CEC bus
+  AGPIO(GPIO_HDMI_CEC_RX),                       // HDMI CEC bus dedicated RX pin
 #endif
 
   AGPIO(GPIO_TXD),                               // Serial interface
