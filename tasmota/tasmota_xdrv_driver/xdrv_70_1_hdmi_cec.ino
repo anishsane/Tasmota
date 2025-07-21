@@ -78,7 +78,8 @@ void HdmiCecInit(void)
   // GPIO configuration
   int32_t cec_gpio = Pin(GPIO_HDMI_CEC);
   if (cec_gpio >= 0) {
-    HDMI_CEC_device = new CEC_Device(cec_gpio, device_type, true); // Promiscuous mode
+    int32_t cec_gpio_rx = Pin(GPIO_HDMI_CEC_RX);
+    HDMI_CEC_device = new CEC_Device(cec_gpio, cec_gpio_rx, device_type, true); // Promiscuous mode
     if (HDMI_CEC_device == nullptr) {
       AddLog(LOG_LEVEL_ERROR, PSTR("CEC: HDMI_CEC_device init failed"));
       return;
@@ -94,7 +95,8 @@ void HdmiCecInit(void)
  * Interrupt management
 \*********************************************************************************************/
 
-void IRAM_ATTR CEC_Run(void *self) {
+void IRAM_ATTR CEC_Run(void *self);
+void CEC_Run(void *self) {
   CEC_Device *cec_device = (CEC_Device*)self;
   cec_device->serviceGpioISR();
 }
